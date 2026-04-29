@@ -849,9 +849,16 @@ function FeedFooter({ onShare }) {
           lineHeight: 1.5,
         }}
       >
-        Every word above is verbatim from
+        Every quotation above is verbatim from
         <br />
-        American newspapers and pamphlets, 1800.
+        American newspapers, pamphlets, and letters of the period.
+      </div>
+      <div
+        className="mt-3 text-[12px] max-w-md mx-auto"
+        style={{ color: '#71767b', lineHeight: 1.5 }}
+      >
+        Text in "quotation marks" is taken from primary sources;
+        post framing is a modern reconstruction.
       </div>
       <div
         className="mt-3 text-[14px]"
@@ -887,7 +894,7 @@ function ShareScreen({ onRestart }) {
   const [copied, setCopied] = useState(false);
   const url = typeof window !== 'undefined' ? window.location.href : 'https://1800.freesystems.org/';
 
-  const tweet = `If 1800 had X. Every word verbatim. ${url}`;
+  const tweet = `If 1800 had X. Every quotation verbatim. ${url}`;
 
   const handleCopy = () => {
     if (navigator.clipboard) {

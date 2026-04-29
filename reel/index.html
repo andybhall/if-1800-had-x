@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>If 1800 Had X — Reel</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================
+     IF 1800 HAD X — vertical highlight reel
+     Designed for screen-recording in a 9:16 viewport.
+     Open this file in Chrome, set window to ~540×960 (or any
+     9:16 ratio), then record the stage element. Press R to
+     restart, Space to pause/resume.
+     ========================================================== */
+
+  :root {
+    --bg: #000;
+    --fg: #e7e9ea;
+    --muted: #71767b;
+    --border: #2f3336;
+    --hot: #ffb020;       /* amber emphasis */
+    --hot-bg: rgba(255,176,32,0.12);
+    --sky: #1d9bf0;
+    --rose: #f43f5e;
+    --emerald: #10b981;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #111;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  /* The stage is the recordable surface. Aspect-locked 9:16. */
+  .stage-wrap {
+    width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: #111;
+  }
+  .stage {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    height: min(100vh, calc(100vw * 16 / 9));
+    width: auto;
+    max-width: 100vw;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  }
+
+  /* Each card stacks; only .active is visible. */
+  .card {
+    position: absolute; inset: 0;
+    padding: 7% 7% 6%;
+    display: flex; flex-direction: column;
+    opacity: 0;
+    transform: translateY(24px) scale(0.995);
+    transition: opacity 0.55s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+  }
+  .card.active {
+    opacity: 1;
+    transform: none;
+  }
+  .card.exiting {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.998);
+    transition: opacity 0.4s ease, transform 0.5s ease;
+  }
+
+  /* ---- Title / outro cards ---- */
+  .title-card {
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .title-eyebrow {
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 2.2vmin;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 4vmin;
+  }
+  .title-headline {
+    font-family: "EB Garamond", Georgia, serif;
+    font-weight: 500;
+    font-size: 8.6vmin;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .title-sub {
+    margin-top: 5vmin;
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    color: #a8acaf;
+    font-size: 3.2vmin;
+    line-height: 1.4;
+    max-width: 80%;
+  }
+
+  .outro-headline {
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 5.4vmin;
+    line-height: 1.35;
+    max-width: 92%;
+  }
+  .outro-rule {
+    width: 12vmin; height: 1px;
+    background: rgba(255,255,255,0.25);
+    margin: 5vmin 0;
+  }
+  .outro-url {
+    font-family: Inter, sans-serif;
+    font-weight: 700;
+    font-size: 4.2vmin;
+    letter-spacing: 0.02em;
+    color: #fff;
+  }
+  .outro-cta {
+    margin-top: 3vmin;
+    font-size: 2.6vmin;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ---- Tweet card ---- */
+  .post {
+    flex: 1;
+    display: flex; flex-direction: column;
+    gap: 3.5vmin;
+  }
+  .post-header {
+    display: flex; align-items: center; gap: 3vmin;
+  }
+  .avatar {
+    width: 11vmin; height: 11vmin;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800;
+    font-size: 4vmin;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .meta {
+    display: flex; flex-direction: column;
+    min-width: 0;
+  }
+  .meta-row {
+    display: flex; align-items: center; gap: 1.2vmin;
+    flex-wrap: wrap;
+  }
+  .name {
+    font-weight: 800;
+    font-size: 3.2vmin;
+    color: var(--fg);
+    letter-spacing: -0.005em;
+  }
+  .handle, .timestamp, .dot {
+    color: var(--muted);
+    font-size: 2.6vmin;
+  }
+  .badge { width: 3vmin; height: 3vmin; flex-shrink: 0; }
+  .badge.gold { color: #f59e0b; }
+  .badge.blue { color: var(--sky); }
+
+  /* The hero text. Big, tight, punchy. */
+  .quote {
+    font-family: "EB Garamond", Georgia, serif;
+    font-weight: 500;
+    color: var(--fg);
+    font-size: 6.4vmin;
+    line-height: 1.18;
+    letter-spacing: -0.005em;
+    flex: 1;
+    overflow: hidden;
+  }
+  .quote.smaller { font-size: 5.6vmin; }
+  .quote.smallest { font-size: 4.9vmin; }
+  .quote p { margin: 0 0 1.6vmin 0; }
+  .quote p:last-child { margin-bottom: 0; }
+
+  /* Emphasis: the slurs / wild words / numbers */
+  .hot {
+    color: var(--hot);
+    font-weight: 600;
+    font-style: italic;
+    background: var(--hot-bg);
+    padding: 0 0.4vmin;
+    border-radius: 0.4vmin;
+  }
+  .hot.shout {
+    font-style: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+  }
+
+  .mention { color: var(--sky); font-style: normal; }
+
+  /* Engagement row */
+  .engage {
+    display: flex; justify-content: space-between;
+    color: var(--muted);
+    font-size: 2.4vmin;
+    padding-top: 2.5vmin;
+    border-top: 1px solid var(--border);
+  }
+  .engage-item {
+    display: flex; align-items: center; gap: 0.9vmin;
+  }
+  .engage-item svg { width: 3vmin; height: 3vmin; }
+  .engage-item.likes { color: var(--rose); }
+  .engage-item.reposts { color: var(--emerald); }
+
+  /* Source byline (small, italic, bottom-right) */
+  .source {
+    margin-top: 2vmin;
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 2.2vmin;
+    text-align: right;
+  }
+
+  /* Watermark / framing — subtle "1800" mark */
+  .frame-mark {
+    position: absolute;
+    top: 3.5vmin; left: 50%;
+    transform: translateX(-50%);
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    color: rgba(255,255,255,0.32);
+    font-size: 2.1vmin;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Progress dots, very subtle */
+  .progress {
+    position: absolute;
+    bottom: 3vmin; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 1vmin;
+    z-index: 5;
+  }
+  .progress span {
+    width: 1.2vmin; height: 1.2vmin;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  .progress span.done { background: rgba(255,255,255,0.5); }
+  .progress span.current {
+    background: var(--sky);
+    transform: scale(1.25);
+  }
+
+  /* Help overlay — only visible before recording starts */
+  .help {
+    position: fixed;
+    bottom: 16px; right: 16px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #ccc;
+    font-size: 12px;
+    line-height: 1.5;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    z-index: 9999;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .help.hidden { opacity: 0; }
+  .help b { color: #fff; }
+</style>
+</head>
+<body>
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+      <div class="frame-mark" id="frameMark">If 1800 had X</div>
+      <div class="progress" id="progress"></div>
+      <!-- cards injected by JS -->
+    </div>
+  </div>
+
+  <div class="help" id="help">
+    <b>R</b> restart &nbsp; <b>Space</b> pause/play &nbsp; <b>→</b> next
+  </div>
+
+<script>
+  // ==========================================================
+  // Data — every quote verbatim from the source app
+  // (src/App.jsx). The <em class="hot"> spans mark which words
+  // get the amber/italic emphasis treatment on screen.
+  // ==========================================================
+  const CARDS = [
+    {
+      type: 'title',
+      duration: 2800,
+      eyebrow: 'A FREE SYSTEMS PROJECT',
+      headline: `If X had existed for the<br>1800 presidential election.`,
+      sub: 'Every word in this video was actually written in 1800.'
+    },
+    {
+      type: 'post',
+      duration: 5400,
+      avatarBg: 'linear-gradient(135deg,#6b1b1b,#8b2a2a)',
+      avatarLetters: 'JC',
+      name: 'James Callender',
+      handle: '@CallenderJT',
+      verified: 'blue',
+      timestamp: '3h',
+      quoteHTML: `
+        <p>A reminder of who you are voting to re-elect:</p>
+        <p>A strange compound of <em class="hot">ignorance and ferocity</em>, of <em class="hot">deceit and weakness</em>.</p>
+        <p><span class="mention">@JohnAdams</span> is a <em class="hot">hideous hermaphroditical character</em>, which has neither the force and firmness of a man, nor the gentleness and sensibility of a woman.</p>
+      `,
+      quoteSize: 'smaller',
+      counts: { replies: '12K', reposts: '31K', likes: '89K', views: '2.1M' },
+      source: '— James Callender, <i>The Prospect Before Us</i>, 1800'
+    },
+    {
+      type: 'post',
+      duration: 5400,
+      avatarBg: 'linear-gradient(135deg,#2c1810,#3d2317)',
+      avatarLetters: 'CC',
+      name: 'Connecticut Courant',
+      handle: '@CTCourant',
+      verified: 'gold',
+      timestamp: '5h',
+      quoteHTML: `
+        <p>If <span class="mention">@TJefferson</span> is elected:</p>
+        <p>“<em class="hot">Murder, robbery, rape, adultery, and incest</em> will all be openly taught and practiced;</p>
+        <p>the air will be rent with the cries of the distressed; the soil will be <em class="hot">soaked with blood</em>, and the nation <em class="hot">black with crimes</em>.”</p>
+      `,
+      quoteSize: 'smallest',
+      counts: { replies: '22K', reposts: '28K', likes: '67K', views: '4.2M' },
+      source: '— Connecticut Courant, Sept. 15, 1800'
+    },
+    {
+      type: 'post',
+      duration: 5800,
+      avatarBg: 'linear-gradient(135deg,#5a1e3a,#7a2a4a)',
+      avatarLetters: 'AG',
+      name: 'Philadelphia Aurora',
+      handle: '@AuroraGazette',
+      verified: 'gold',
+      timestamp: '9h',
+      quoteHTML: `
+        <p>🚨 EXCLUSIVE 🚨</p>
+        <p>President <span class="mention">@JohnAdams</span> dispatched General Pinckney to England — to import <em class="hot">four pretty girls</em>.</p>
+        <p><em class="hot shout">Two for Pinckney.</em></p>
+        <p><em class="hot shout">Two for the President.</em></p>
+      `,
+      quoteSize: 'smaller',
+      counts: { replies: '34K', reposts: '89K', likes: '241K', views: '6.8M' },
+      source: '— Philadelphia Aurora General Advertiser, 1800'
+    },
+    {
+      type: 'post',
+      duration: 5200,
+      avatarBg: 'linear-gradient(135deg,#0a2540,#00356b)',
+      avatarLetters: 'TD',
+      name: 'Rev. Timothy Dwight IV',
+      handle: '@PresDwightYale',
+      verified: 'blue',
+      timestamp: '8h',
+      quoteHTML: `
+        <p>A reminder, on the eve of this election, of what I warned two summers past:</p>
+        <p>“Shall we see our <em class="hot">wives and daughters</em> the victims of <em class="hot">legal prostitution</em>; soberly dishonoured…”</p>
+      `,
+      quoteSize: 'smaller',
+      counts: { replies: '4.2K', reposts: '6.7K', likes: '18K', views: '870K' },
+      source: '— Rev. Timothy Dwight IV, sermon, July 4, 1798'
+    },
+    {
+      type: 'post',
+      duration: 5600,
+      avatarBg: 'linear-gradient(135deg,#4a3621,#6b5036)',
+      avatarLetters: 'AH',
+      name: 'Alexander Hamilton',
+      handle: '@AHamilton',
+      verified: 'blue',
+      timestamp: '14h',
+      quoteHTML: `
+        <p>My fellow Federalists. Before you cast a vote for our President, you should know what I have set down at length:</p>
+        <p>“the <em class="hot">disgusting egotism</em>, the <em class="hot">distempered jealousy</em>, and the <em class="hot">ungovernable indiscretion</em> of Mr. Adams’s temper.”</p>
+      `,
+      quoteSize: 'smaller',
+      counts: { replies: '18K', reposts: '41K', likes: '102K', views: '3.1M' },
+      source: '— Alexander Hamilton, <i>Letter Concerning the Public Conduct of John Adams</i>, 1800'
+    },
+    {
+      type: 'post',
+      duration: 5200,
+      avatarBg: 'linear-gradient(135deg,#4a2e6e,#6b3f9c)',
+      avatarLetters: 'MC',
+      name: 'Rev. Manasseh Cutler',
+      handle: '@CutlerJournal',
+      verified: 'blue',
+      timestamp: 'Jan 1802',
+      quoteHTML: `
+        <p>Visited Mount Vernon today.</p>
+        <p>Mrs. Washington spoke of the election of <span class="mention">@TJefferson</span> — <em class="hot shout">“one of the most detestable of mankind”</em> — and called it <em class="hot">“the greatest misfortune our country had ever experienced.”</em></p>
+      `,
+      quoteSize: 'smaller',
+      counts: { replies: '21K', reposts: '52K', likes: '134K', views: '5.4M' },
+      source: '— Rev. Manasseh Cutler’s journal, Jan. 2, 1802'
+    },
+    {
+      type: 'outro',
+      duration: 4600,
+      headline: 'Every word above is verbatim from American newspapers and pamphlets, 1800.'
+    }
+  ];
+
+  // SVG icons (X-authentic shapes)
+  const ICON = {
+    verified: (kind) => `
+      <svg class="badge ${kind}" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true">
+        <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/>
+      </svg>`,
+    reply: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`,
+    repost: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
+    like: `<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+    views: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+  };
+
+  // ==========================================================
+  // Render
+  // ==========================================================
+  const stage = document.getElementById('stage');
+  const progressEl = document.getElementById('progress');
+  const help = document.getElementById('help');
+  const frameMark = document.getElementById('frameMark');
+
+  // Build progress dots (skip title + outro from the count for cleanliness)
+  const postIndices = CARDS.map((c,i) => c.type === 'post' ? i : -1).filter(i => i >= 0);
+  postIndices.forEach(() => {
+    const dot = document.createElement('span');
+    progressEl.appendChild(dot);
+  });
+
+  function renderCard(card, idx) {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.idx = idx;
+
+    if (card.type === 'title') {
+      el.classList.add('title-card');
+      el.innerHTML = `
+        <div class="title-eyebrow">${card.eyebrow}</div>
+        <div class="title-headline">${card.headline}</div>
+        <div class="title-sub">${card.sub}</div>
+      `;
+    } else if (card.type === 'outro') {
+      el.classList.add('title-card');
+      el.innerHTML = `
+        <div class="outro-headline">${card.headline}</div>
+      `;
+    } else {
+      // post card
+      const sizeClass = card.quoteSize ? card.quoteSize : '';
+      el.innerHTML = `
+        <div class="post">
+          <div class="post-header">
+            <div class="avatar" style="background:${card.avatarBg}">${card.avatarLetters}</div>
+            <div class="meta">
+              <div class="meta-row">
+                <span class="name">${card.name}</span>
+                ${ICON.verified(card.verified)}
+              </div>
+              <div class="meta-row">
+                <span class="handle">${card.handle}</span>
+                <span class="dot">·</span>
+                <span class="timestamp">${card.timestamp}</span>
+              </div>
+            </div>
+          </div>
+          <div class="quote ${sizeClass}">${card.quoteHTML}</div>
+          <div class="source">${card.source}</div>
+          <div class="engage">
+            <div class="engage-item">${ICON.reply}<span>${card.counts.replies}</span></div>
+            <div class="engage-item reposts">${ICON.repost}<span>${card.counts.reposts}</span></div>
+            <div class="engage-item likes">${ICON.like}<span>${card.counts.likes}</span></div>
+            <div class="engage-item">${ICON.views}<span>${card.counts.views}</span></div>
+          </div>
+        </div>
+      `;
+    }
+    return el;
+  }
+
+  // Mount all cards (stacked, only one visible at a time)
+  const cardEls = CARDS.map((c, i) => {
+    const el = renderCard(c, i);
+    stage.appendChild(el);
+    return el;
+  });
+
+  // ==========================================================
+  // Playback
+  // ==========================================================
+  let current = -1;
+  let timer = null;
+  let paused = false;
+
+  function updateProgress() {
+    const dots = progressEl.querySelectorAll('span');
+    dots.forEach((d, i) => {
+      d.classList.remove('done', 'current');
+      const cardIndex = postIndices[i];
+      if (cardIndex < current) d.classList.add('done');
+      if (cardIndex === current) d.classList.add('current');
+    });
+  }
+
+  function show(i) {
+    if (i < 0 || i >= CARDS.length) return;
+
+    cardEls.forEach((el, j) => {
+      el.classList.remove('active', 'exiting');
+      if (j === current && j !== i) el.classList.add('exiting');
+    });
+    current = i;
+    cardEls[i].classList.add('active');
+
+    // Hide the frame-mark on title and outro for a cleaner full-bleed look
+    const card = CARDS[i];
+    frameMark.style.opacity = (card.type === 'post') ? '1' : '0';
+
+    updateProgress();
+
+    if (timer) clearTimeout(timer);
+    if (!paused) {
+      timer = setTimeout(() => {
+        if (i < CARDS.length - 1) show(i + 1);
+        // hold on outro indefinitely; user can press R to restart
+      }, card.duration);
+    }
+  }
+
+  function restart() {
+    if (timer) clearTimeout(timer);
+    cardEls.forEach(el => el.classList.remove('active', 'exiting'));
+    current = -1;
+    setTimeout(() => show(0), 60);
+  }
+
+  function togglePause() {
+    paused = !paused;
+    if (paused) {
+      if (timer) clearTimeout(timer);
+    } else {
+      // resume by restarting the current card's timer
+      const card = CARDS[current];
+      if (card) {
+        timer = setTimeout(() => {
+          if (current < CARDS.length - 1) show(current + 1);
+        }, 1500);
+      }
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'KeyR') { restart(); }
+    else if (e.code === 'Space') { e.preventDefault(); togglePause(); }
+    else if (e.code === 'ArrowRight') {
+      e.preventDefault();
+      if (current < CARDS.length - 1) show(current + 1);
+    }
+    else if (e.code === 'ArrowLeft') {
+      e.preventDefault();
+      if (current > 0) show(current - 1);
+    }
+  });
+
+  // Recording mode (?record=1): hide help overlay entirely.
+  const isRecording = new URLSearchParams(location.search).has('record');
+  if (isRecording) {
+    help.style.display = 'none';
+  } else {
+    setTimeout(() => help.classList.add('hidden'), 3500);
+  }
+
+  // Click-to-start so the first card lands cleanly on a fresh capture.
+  // Auto-starts after 800ms if no click.
+  let started = false;
+  function start() {
+    if (started) return;
+    started = true;
+    show(0);
+  }
+  document.addEventListener('click', start);
+  setTimeout(start, 800);
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.local
+.vite/
+.vercel
+
+# Demo reel outputs (regenerable via reel/record.js)
+reel/*.mp4
+reel/*.webm
+reel/capture/
